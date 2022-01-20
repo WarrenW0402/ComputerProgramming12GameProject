@@ -21,6 +21,7 @@ http://programarcadegames.com/python_examples/sprite_sheets/
 import random
 import pygame
 
+
 # Global constants
 
 # Colors
@@ -51,8 +52,9 @@ class Player(pygame.sprite.Sprite):
         width = 40
         height = 60
         self.image = pygame.Surface([width, height])
-        self.image.fill(RED)
+        self.image.fill(BLUE)
         self.score = 0
+        self.time = 60
 
         # Set a reference to the image rect.
         self.rect = self.image.get_rect()
@@ -169,7 +171,7 @@ class Level(object):
         self.player = player
 
         # Background image
-        self.background = None
+        self.background = pygame.image.load('./background.jpg')
 
     # Update everythign on this level
     def update(self):
@@ -182,8 +184,7 @@ class Level(object):
         """ Draw everything on this level. """
 
         # Draw the background
-        screen.fill(BLUE)
-
+        screen.blit(pygame.transform.scale((self.background), (SCREEN_WIDTH, SCREEN_HEIGHT)), (0, 0))
         # Draw all the sprite lists that we have
         self.platform_list.draw(screen)
         self.enemy_list.draw(screen)
@@ -192,8 +193,8 @@ class Level(object):
 
 def new_coin() -> None:
     coin = pygame.sprite.Sprite()
-    coin.image = pygame.Surface((10, 10))
-    coin.image.fill((0, 255, 255))
+    coin.image = pygame.image.load('./Star.jpg')
+    coin.image = pygame.transform.scale(coin.image, (20,20))
     coin.rect = coin.image.get_rect()
     coin.rect.x = random.randrange(0,600)
     coin.rect.y = random.choice([350, 420, 550, 470, 100, 50, 20, 40, 150, 250])
@@ -307,15 +308,28 @@ def main():
             player.rect.left = 0
 
 
+
+        # 60-second timer
+        if pygame.time.get_ticks() >= 60000:
+            done = True
+
         # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
         current_level.draw(screen)
         active_sprite_list.draw(screen)
 
         font = pygame.font.SysFont("Arial", 25)
 
+        # Draw score on the screen
         screen.blit(
-            font.render(f"Score: {player.score}", True, WHITE),
+            font.render(f"Score: {player.score}", True, BLACK),
             (0, 0)
+        )
+
+        # Draw the countdown timer on screen
+        x = pygame.time.get_ticks() / 1000
+        screen.blit(
+            font.render(f"Time: {60 - int(x)}", True, BLACK),
+            (300, 0)
         )
         # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
 
