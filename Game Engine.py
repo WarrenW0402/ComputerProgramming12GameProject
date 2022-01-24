@@ -18,6 +18,7 @@ http://programarcadegames.com/python_examples/f.php?file=platform_moving.py
 http://programarcadegames.com/python_examples/sprite_sheets/
 """
 
+import time
 import random
 import pygame
 
@@ -191,15 +192,51 @@ class Level(object):
         self.coin_list.draw(screen)
 
 
-def new_coin() -> None:
-    coin = pygame.sprite.Sprite()
-    coin.image = pygame.image.load('./Star.jpg')
-    coin.image = pygame.transform.scale(coin.image, (20,20))
-    coin.rect = coin.image.get_rect()
-    coin.rect.x = random.randrange(0,600)
-    coin.rect.y = random.choice([350, 420, 550, 470, 100, 50, 20, 40, 150, 250])
-    print(coin.rect.x, coin.rect.y)
-    return coin
+class Coin(pygame.sprite.Sprite):
+    def __init__(self, special_coin=False):
+        super().__init__()
+
+        if special_coin:
+            self.image = pygame.image.load('./Rainbow_star.png')
+            self.special = True
+        else:
+            self.image = pygame.image.load('./MK8_Super_Star.png')
+            self.special = False
+
+        self.image = pygame.transform.scale(self.image, (30, 30))
+        self.rect = self.image.get_rect()
+
+        self.rect.x = random.randrange(0, 600)
+        self.rect.y = random.choice([350, 420, 550, 470, 100, 50, 20, 40, 150, 250])
+
+
+
+# def new_coin() -> None:
+#     coin = pygame.sprite.Sprite()
+#     pointCoin = pygame.sprite.Sprite()
+#
+#     pointCoin.image = pygame.image.load('./Rainbow_star.png')
+#     coin.image = pygame.image.load('./MK8_Super_Star.png')
+#
+#     pointCoin.image = pygame.transform.scale(pointCoin.image, (30,30))
+#     coin.image = pygame.transform.scale(coin.image, (30,30))
+#
+#     pointCoin.rect = pointCoin.image.get_rect()
+#     coin.rect = coin.image.get_rect()
+#
+#     pointCoin.rect.x = random.randrange(0, 600)
+#     pointCoin.rect.y = random.choice([350, 420, 550, 470, 100, 50, 20, 40, 150, 250])
+#
+#     coin.rect.x = random.randrange(0,600)
+#     coin.rect.y = random.choice([350, 420, 550, 470, 100, 50, 20, 40, 150, 250])
+#
+#     x = random.randrange(0, 100)
+#     print(x)
+#     if x <= 25:
+#         return pointCoin
+#     else:
+#         return coin
+
 
 
 class Level_01(Level):
@@ -219,7 +256,7 @@ class Level_01(Level):
             [210, 20, 200, 200]
         ]
 
-        self.coin_list.add(new_coin())
+        self.coin_list.add(Coin())
 
 
         # Go through the array above and add platforms
@@ -295,9 +332,24 @@ def main():
         coins_collected = pygame.sprite.spritecollide(player, current_level.coin_list, True)
         for coin in coins_collected:
             # respawn new coin
-            current_level.coin_list.add(new_coin())
-            # increase score by 1
-            player.score += 1
+            if random.random() <= 0.25:
+                current_level.coin_list.add(Coin(special_coin=True))
+
+            else:
+                current_level.coin_list.add(Coin())
+            if coin.special:
+                player.score += 5
+            else:
+                player.score += 1
+
+        #TODO: destroy special coin after 5 seconds
+
+        while coin.special:
+            x = time.perf_counter()
+            print(x)
+            if x == x + 5:
+                coin.kill()
+                print(x)
 
         # If the player gets near the right side, shift the world left (-x)
         if player.rect.right > SCREEN_WIDTH:
