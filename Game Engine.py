@@ -21,7 +21,7 @@ http://programarcadegames.com/python_examples/sprite_sheets/
 import time
 import random
 import pygame
-
+import clock
 
 # Global constants
 
@@ -36,6 +36,36 @@ BLUE = (0, 0, 255)
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
+
+def pause(screen, clock):
+    paused = True
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_c:
+                    paused = False
+
+                elif event.key == pygame.K_q:
+                    pygame.quit()
+                    quit()
+
+        screen.fill(WHITE)
+        font = pygame.font.SysFont("Arial", 25)
+
+        screen.blit(
+            font.render("Paused", True, BLACK),
+            (350, SCREEN_HEIGHT / 2 -100)
+        )
+
+        screen.blit(font.render("Press C to continue or Q to quit", True, BLACK),
+                    (230, SCREEN_HEIGHT / 2 ))
+
+        pygame.display.update()
+        clock.tick(5)
 
 class Player(pygame.sprite.Sprite):
     """ This class represents the bar at the bottom that the player
@@ -143,6 +173,7 @@ class Player(pygame.sprite.Sprite):
         self.change_x = 0
 
 
+
 class Platform(pygame.sprite.Sprite):
     """ Platform the user can jump on """
 
@@ -192,6 +223,8 @@ class Level(object):
         self.coin_list.draw(screen)
 
 
+
+
 class Coin(pygame.sprite.Sprite):
     def __init__(self, special_coin=False):
         super().__init__()
@@ -211,31 +244,6 @@ class Coin(pygame.sprite.Sprite):
 
 
 
-# def new_coin() -> None:
-#     coin = pygame.sprite.Sprite()
-#     pointCoin = pygame.sprite.Sprite()
-#
-#     pointCoin.image = pygame.image.load('./Rainbow_star.png')
-#     coin.image = pygame.image.load('./MK8_Super_Star.png')
-#
-#     pointCoin.image = pygame.transform.scale(pointCoin.image, (30,30))
-#     coin.image = pygame.transform.scale(coin.image, (30,30))
-#
-#     pointCoin.rect = pointCoin.image.get_rect()
-#     coin.rect = coin.image.get_rect()
-#
-#     pointCoin.rect.x = random.randrange(0, 600)
-#     pointCoin.rect.y = random.choice([350, 420, 550, 470, 100, 50, 20, 40, 150, 250])
-#
-#     coin.rect.x = random.randrange(0,600)
-#     coin.rect.y = random.choice([350, 420, 550, 470, 100, 50, 20, 40, 150, 250])
-#
-#     x = random.randrange(0, 100)
-#     print(x)
-#     if x <= 25:
-#         return pointCoin
-#     else:
-#         return coin
 
 
 
@@ -315,6 +323,9 @@ def main():
                 if event.key == pygame.K_UP:
                     player.jump()
 
+                if event.key == pygame.K_p:
+                    pause(screen, clock)
+
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT and player.change_x < 0:
                     player.stop()
@@ -326,6 +337,8 @@ def main():
 
         # Update items in the level
         current_level.update()
+
+
 
         # Coin collision
         # if player collects coin
@@ -342,14 +355,14 @@ def main():
             else:
                 player.score += 1
 
-        #TODO: destroy special coin after 5 seconds
 
-        while coin.special:
-            x = time.perf_counter()
-            print(x)
-            if x == x + 5:
-                coin.kill()
-                print(x)
+
+        # while coin.special:
+        #     x = time.perf_counter()
+        #     print(x)
+        #     if x == x + 5:
+        #         coin.kill()
+        #         print(x)
 
         # If the player gets near the right side, shift the world left (-x)
         if player.rect.right > SCREEN_WIDTH:
@@ -375,6 +388,11 @@ def main():
         screen.blit(
             font.render(f"Score: {player.score}", True, BLACK),
             (0, 0)
+        )
+
+        screen.blit(
+            font.render("Press P to Pause", True, BLACK),
+            (SCREEN_WIDTH - 200, 0)
         )
 
         # Draw the countdown timer on screen
